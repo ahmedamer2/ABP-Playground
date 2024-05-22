@@ -12,6 +12,7 @@
 
   <PropertyGroup Condition=" '$(RunConfiguration)' == 'PlayGround.HttpApi.Host' " />
   <ItemGroup>
+    <PackageReference Include="Asp.Versioning.Mvc.ApiExplorer" Version="8.1.0" />
     <PackageReference Include="AspNetCore.HealthChecks.UI" Version="8.0.0" />
     <PackageReference Include="AspNetCore.HealthChecks.UI.Client" Version="8.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="8.0.0" />

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
+using Asp.Versioning;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.MicrosoftAccount;
@@ -88,6 +89,8 @@ public class PlayGroundHttpApiHostModule : AbpModule
                 serverBuilder.AddProductionEncryptionAndSigningCertificate("openiddict.pfx", "4aa969f4-f84a-45a9-859f-b6e9256022d4");
             });
         }
+        
+        ConfigureConventionalControllers();
     }
 
     public override void ConfigureServices(ServiceConfigurationContext context)
@@ -110,9 +113,7 @@ public class PlayGroundHttpApiHostModule : AbpModule
 
         ConfigureAuthentication(context);
         ConfigureUrls(configuration);
-        ConfigureBundles();
-        ConfigureConventionalControllers();
-        ConfigureImpersonation(context, configuration);
+        ConfigureVersioning(context);
         ConfigureSwagger(context, configuration);
         ConfigureVirtualFileSystem(context);
         ConfigureCors(context, configuration);
@@ -130,11 +131,6 @@ public class PlayGroundHttpApiHostModule : AbpModule
         });
     }
 
-    private void ConfigureHealthChecks(ServiceConfigurationContext context)
-    {
-        context.Services.AddPlayGroundHealthChecks();
-    }
-
     private void ConfigureUrls(IConfiguration configuration)
     {
         Configure<AppUrlOptions>(options =>
@@ -146,21 +142,6 @@ public class PlayGroundHttpApiHostModule : AbpModule
             options.RedirectAllowedUrls.AddRange(configuration["App:RedirectAllowedUrls"]?.Split(',') ?? Array.Empty<string>());
         });
     }
-
-    private void ConfigureBundles()
-    {
-        Configure<AbpBundlingOptions>(options =>
-        {
-            options.StyleBundles.Configure(
-                LeptonXThemeBundles.Styles.Global,
-                bundle =>
-                {
-                    bundle.AddFiles("/global-styles.css");
-                }
-            );
-        });
-    }
-
 
     private void ConfigureVirtualFileSystem(ServiceConfigurationContext context)
     {
@@ -180,10 +161,44 @@ public class PlayGroundHttpApiHostModule : AbpModule
 
     private void ConfigureConventionalControllers()
     {
-        Configure<AbpAspNetCoreMvcOptions>(options =>
+        PreConfigure<AbpAspNetCoreMvcOptions>(options =>
         {
-            options.ConventionalControllers.Create(typeof(PlayGroundApplicationModule).Assembly);
+            options.ConventionalControllers.Create(typeof(PlayGroundApplicationModule).Assembly, setting =>
+            {
+                setting.ApiVersions.Add(new ApiVersion(1, 0));
+                setting.RootPath = "v{version:apiVersion}";
+            });
         });
+    }
+
+    private void ConfigureVersioning(ServiceConfigurationContext context)
+    {
+        var preActions = context.Services.GetPreConfigureActions<AbpAspNetCoreMvcOptions>();
+
+        Configure<AbpAspNetCoreMvcOptions>(options => { preActions.Configure(); });
+
+        context.Services.AddAbpApiVersioning(options =>
+        {
+            // Change this API version when we want the default version to be something else
+            options.DefaultApiVersion = new ApiVersion(1, 0);
+            options.AssumeDefaultVersionWhenUnspecified = true;
+            options.ReportApiVersions = true;
+        }).AddApiExplorer(
+            options =>
+            {
+                // add the versioned api explorer, which also adds IApiVersionDescriptionProvider service
+                // note: the specified format code will format the version as "'v'major[.minor][-status]"
+                // example: v1 or v1.2
+                // note: there is no format code that allows for an optional minor version. Even though we do not need a status there
+                // is no format code that will give us "'v'major[.minor]". We would be forced in "'v'major.minor" if we use VV as the format
+                // refer to: https://github.com/dotnet/aspnet-api-versioning/wiki/Version-Format
+                options.GroupNameFormat = "'v'VVV";
+
+                // This will allow swagger to substitute the version number directly into the Url instead of leaving it as a param
+                options.SubstituteApiVersionInUrl = true;
+            });
+
+        Configure<AbpAspNetCoreMvcOptions>(options => { options.ChangeControllerModelApiExplorerGroupName = false; });
     }
 
     private static void ConfigureSwagger(ServiceConfigurationContext context, IConfiguration configuration)
@@ -268,16 +283,6 @@ public class PlayGroundHttpApiHostModule : AbpModule
                     options.WithProperty(x => x.ConsumerSecret, isSecret: true);
                 }
             );
-    }
-
-    private void ConfigureImpersonation(ServiceConfigurationContext context, IConfiguration configuration)
-    {
-        context.Services.Configure<AbpAccountOptions>(options =>
-        {
-            options.TenantAdminUserName = "admin";
-            options.ImpersonationTenantPermission = SaasHostPermissions.Tenants.Impersonation;
-            options.ImpersonationUserPermission = IdentityPermissions.Users.Impersonation;
-        });
     }
 
     public override void OnApplicationInitialization(ApplicationInitializationContext context)
