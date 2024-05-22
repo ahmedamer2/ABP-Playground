@@ -67,9 +67,6 @@ namespace PlayGround.Migrations
                     b.Property<float>("Price")
                         .HasColumnType("real");
 
-                    b.Property<DateTime>("PublishDate")
-                        .HasColumnType("datetime2");
-
                     b.HasKey("Id");
 
                     b.ToTable("Books", "Playground");

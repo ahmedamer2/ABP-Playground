@@ -515,7 +515,6 @@ namespace PlayGround.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    PublishDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Price = table.Column<float>(type: "real", nullable: false),
                     AuthorId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ExtraProperties = table.Column<string>(type: "nvarchar(max)", nullable: false),

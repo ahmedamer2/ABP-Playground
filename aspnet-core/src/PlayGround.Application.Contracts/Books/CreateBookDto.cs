@@ -1,13 +1,13 @@
 ﻿using System;
-using Volo.Abp.Domain.Entities.Auditing;
+using Volo.Abp.Application.Dtos;
 
-namespace PlayGround.Entities;
+namespace PlayGround.Books;
 
-public class Book : AuditedAggregateRoot<Guid>
+public class CreateBookDto : AuditedEntityDto<Guid>
 {
     public string Name { get; set; }
 
     public float Price { get; set; }
-        
+
     public Guid AuthorId { get; set; }
 }

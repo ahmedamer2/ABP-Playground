@@ -11,6 +11,7 @@ using Volo.Abp.PermissionManagement;
 using Volo.Abp.SettingManagement;
 using Volo.Abp.TextTemplateManagement;
 using Volo.Saas.Host;
+using Volo.Abp.FluentValidation;
 
 namespace PlayGround;
 
@@ -28,9 +29,10 @@ namespace PlayGround;
     typeof(AbpAccountAdminApplicationModule),
     typeof(LanguageManagementApplicationModule),
     typeof(AbpGdprApplicationModule),
-    typeof(TextTemplateManagementApplicationModule)
+    typeof(TextTemplateManagementApplicationModule),
+    typeof(AbpFluentValidationModule)
     )]
-public class PlayGroundApplicationModule : AbpModule
+    public class PlayGroundApplicationModule : AbpModule
 {
     public override void ConfigureServices(ServiceConfigurationContext context)
     {

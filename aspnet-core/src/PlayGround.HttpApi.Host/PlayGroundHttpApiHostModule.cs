@@ -35,6 +35,7 @@ using Volo.Abp.AspNetCore.Mvc.UI.Bundling;
 using Volo.Abp.AspNetCore.Mvc.UI.Theme.Shared;
 using Microsoft.AspNetCore.Hosting;
 using PlayGround.HealthChecks;
+using Swashbuckle.AspNetCore.SwaggerUI;
 using Volo.Abp.AspNetCore.Mvc.UI.Theme.LeptonX;
 using Volo.Abp.AspNetCore.Mvc.UI.Theme.LeptonX.Bundling;
 using Volo.Abp.AspNetCore.Serilog;
@@ -116,7 +117,7 @@ public class PlayGroundHttpApiHostModule : AbpModule
         ConfigureVirtualFileSystem(context);
         ConfigureCors(context, configuration);
         ConfigureExternalProviders(context);
-        ConfigureHealthChecks(context);
+        // ConfigureHealthChecks(context);
     }
 
 
@@ -319,6 +320,7 @@ public class PlayGroundHttpApiHostModule : AbpModule
 
             var configuration = context.ServiceProvider.GetRequiredService<IConfiguration>();
             options.OAuthClientId(configuration["AuthServer:SwaggerClientId"]);
+            options.DocExpansion(DocExpansion.None);
         });
         app.UseAuditing();
         app.UseAbpSerilogEnrichers();

@@ -13,7 +13,7 @@ using Volo.Abp.EntityFrameworkCore;
 namespace PlayGround.Migrations
 {
     [DbContext(typeof(PlayGroundDbContext))]
-    [Migration("20240522150848_Initial")]
+    [Migration("20240522153052_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -69,9 +69,6 @@ namespace PlayGround.Migrations
 
                     b.Property<float>("Price")
                         .HasColumnType("real");
-
-                    b.Property<DateTime>("PublishDate")
-                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
