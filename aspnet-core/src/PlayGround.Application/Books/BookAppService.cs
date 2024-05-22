@@ -9,5 +9,4 @@ namespace PlayGround.Books;
 public class BookAppService (IRepository<Book, Guid> repository)
     : CrudAppService<Book, BookDto, Guid, PagedResultRequestDto, CreateBookDto>(repository), IBookAppService
 {
-    
 }

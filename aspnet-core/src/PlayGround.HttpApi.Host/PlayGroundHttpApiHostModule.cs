@@ -1,8 +1,6 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
 using Asp.Versioning;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Google;
@@ -21,29 +19,21 @@ using PlayGround.MultiTenancy;
 using Microsoft.OpenApi.Models;
 using Volo.Abp;
 using Volo.Abp.Account.Web;
-using Volo.Abp.Account.Public.Web;
 using Volo.Abp.Account.Public.Web.Impersonation;
 using Volo.Abp.AspNetCore.MultiTenancy;
 using Volo.Abp.AspNetCore.Mvc;
 using Volo.Abp.Autofac;
-using Volo.Abp.Localization;
 using Volo.Abp.Modularity;
 using Volo.Abp.UI.Navigation.Urls;
 using Volo.Abp.VirtualFileSystem;
 using Volo.Abp.Account;
 using Volo.Abp.Account.Public.Web.ExternalProviders;
-using Volo.Abp.AspNetCore.Mvc.UI.Bundling;
 using Volo.Abp.AspNetCore.Mvc.UI.Theme.Shared;
-using Microsoft.AspNetCore.Hosting;
-using PlayGround.HealthChecks;
 using Swashbuckle.AspNetCore.SwaggerUI;
 using Volo.Abp.AspNetCore.Mvc.UI.Theme.LeptonX;
-using Volo.Abp.AspNetCore.Mvc.UI.Theme.LeptonX.Bundling;
 using Volo.Abp.AspNetCore.Serilog;
-using Volo.Abp.Identity;
 using Volo.Abp.OpenIddict;
 using Volo.Abp.Swashbuckle;
-using Volo.Saas.Host;
 using Volo.Abp.Security.Claims;
 
 namespace PlayGround;
@@ -178,25 +168,28 @@ public class PlayGroundHttpApiHostModule : AbpModule
         Configure<AbpAspNetCoreMvcOptions>(options => { preActions.Configure(); });
 
         context.Services.AddAbpApiVersioning(options =>
-        {
-            // Change this API version when we want the default version to be something else
-            options.DefaultApiVersion = new ApiVersion(1, 0);
-            options.AssumeDefaultVersionWhenUnspecified = true;
-            options.ReportApiVersions = true;
-        }).AddApiExplorer(
-            options =>
-            {
-                // add the versioned api explorer, which also adds IApiVersionDescriptionProvider service
-                // note: the specified format code will format the version as "'v'major[.minor][-status]"
-                // example: v1 or v1.2
-                // note: there is no format code that allows for an optional minor version. Even though we do not need a status there
-                // is no format code that will give us "'v'major[.minor]". We would be forced in "'v'major.minor" if we use VV as the format
-                // refer to: https://github.com/dotnet/aspnet-api-versioning/wiki/Version-Format
-                options.GroupNameFormat = "'v'VVV";
+                {
+                    // Change this API version when we want the default version to be something else
+                    options.DefaultApiVersion = new ApiVersion(1, 0);
+                    options.AssumeDefaultVersionWhenUnspecified = true;
+                    options.ReportApiVersions = true;
+                }, mvcOptions => mvcOptions.ConfigureAbp(preActions.Configure())
+            )
+            .AddApiExplorer(
+                options =>
+                {
+                    // add the versioned api explorer, which also adds IApiVersionDescriptionProvider service
+                    // note: the specified format code will format the version as "'v'major[.minor][-status]"
+                    // example: v1 or v1.2
+                    // note: there is no format code that allows for an optional minor version. Even though we do not need a status there
+                    // is no format code that will give us "'v'major[.minor]". We would be forced in "'v'major.minor" if we use VV as the format
+                    // refer to: https://github.com/dotnet/aspnet-api-versioning/wiki/Version-Format
+                    options.GroupNameFormat = "'v'VVV";
 
-                // This will allow swagger to substitute the version number directly into the Url instead of leaving it as a param
-                options.SubstituteApiVersionInUrl = true;
-            });
+                    // This will allow swagger to substitute the version number directly into the Url instead of leaving it as a param
+                    options.SubstituteApiVersionInUrl = true;
+                }
+            );
 
         Configure<AbpAspNetCoreMvcOptions>(options => { options.ChangeControllerModelApiExplorerGroupName = false; });
     }
